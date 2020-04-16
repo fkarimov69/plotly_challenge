@@ -1,9 +1,15 @@
 
+function makePlots(sample) {
+
+
+
+
+
 d3.json("samples.json").then(function(data){
-    console.log(data);
+    // console.log(data);
     var samples=data.samples;
     var resultArray = samples.filter(sampleObj = sample => sampleObj.sample_values = sample);
-    console.log(resultArray)
+    // console.log(resultArray)
   var result = resultArray[0];
     var sampleValue = result.sample_values;
     var otuID = result.otu_ids;
@@ -14,7 +20,7 @@ d3.json("samples.json").then(function(data){
         // var otuId1 = otuId.slice(0,10)
         var otu_ids = result.otu_ids
         var yticks = otu_ids.slice(0, 10).map(otuID => `OTU ${otuID}`).reverse()
-        console.log(yticks);
+        // console.log(yticks);
     // console.log(otuId);
 
 
@@ -40,16 +46,16 @@ var layout = {
 Plotly.newPlot("bar", data, layout);
 });
 d3.json("samples.json").then(function(data){
-    console.log(data);
+    // console.log(data);
     var samples=data.samples;
     var resultArray = samples.filter(sampleObj = sample => sampleObj.sample_values = sample);
-    console.log(resultArray)
+    // console.log(resultArray)
   var result = resultArray[0];
     var sampleValue = result.sample_values;
     var otuId = result.otu_ids;
     var otuLabels = result.otu_labels;
 
-    console.log(otuId);
+    // console.log(otuId);
 var trace1 = {
     
     x: otuId,
@@ -73,16 +79,37 @@ var layout = {
       
       Plotly.newPlot('plot', data, layout);
 });
+};
+function init() {
+  // Grab a reference to the dropdown select element
+  var selector = d3.select("#selDataset");
+  // Use the list of sample names to populate the select options
+  d3.json("samples.json").then((data) => {
+    var sampleNames = data.names;
+    sampleNames.forEach((sample) => {
+      selector
+        .append("option")
+        .text(sample)
+        .property("value", sample);
+    });
+    // Use the first sample from the list to build the initial plots
+    var firstSample = sampleNames[0];
+    makePlots(firstSample);
+    buildMetadata(firstSample);
+  });
+}
 
 
+    function buildMetadata(sample) {
+      console.log(sample)
     d3.json("samples.json").then(function(data) {
-      console.log(data);
+      // console.log(data);
       var metadata = data.metadata;
-      console.log(metadata);
+      // console.log(metadata);
       // Filter the data for the object with the desired sample number
-      var resultArray = metadata.filter(sampleObj = sample => sampleObj.id = sample);
+      var resultArray = metadata.filter(sampleObj => sampleObj.id == sample);
       var result = resultArray[0];
-      // console.log(result)
+      console.log(result)
       // Use d3 to select the panel with id of `#sample-metadata`
       var PANEL = d3.select("#sample-metadata");
       // Use `.html("") to clear any existing metadata
@@ -94,10 +121,16 @@ var layout = {
       });
     
     });
- 
+  };
 
+  init();
 
+  function optionChanged(newSample) {
+    console.log("box cha",newSample);
+    makePlots(newSample)
+    buildMetadata(newSample)
 
+}
 
 
 
